@@ -24,6 +24,9 @@ func JwtAuthentication(authenticationHeader string, userClaims *models.UserClaim
 	}
 
 	claims, err := helpers.ReadToken(jwttoken, signingKey)
+	if nil != err {
+		return fmt.Errorf("ReadToken error: %s", err.Error())
+	}
 
 	muc, err := json.Marshal(claims)
 	if nil != err {

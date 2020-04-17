@@ -24,7 +24,7 @@ var (
 
 // init is invoked before main()
 func init() {
-	conf := config.New()
+	conf := config.New(".env")
 	domain = conf.Domain.Host
 	env = conf.Env
 	debugMode = conf.DebugMode
@@ -56,6 +56,12 @@ func main() {
 
 	// Authentication API
 	authenticationRoutes := r.Host("api." + domain).Subrouter()
+
+	cookie := controllers.CookieController{}
+
+	authenticationRoutes.HandleFunc("/cookie/read", cookie.Read).Methods(http.MethodGet, http.MethodOptions)
+	authenticationRoutes.HandleFunc("/cookie/create", cookie.Create).Methods(http.MethodGet, http.MethodOptions)
+	authenticationRoutes.HandleFunc("/cookie/delete", cookie.Delete).Methods(http.MethodGet, http.MethodOptions)
 
 	authentication := controllers.AuthenticationController{}
 
@@ -89,6 +95,11 @@ func main() {
 	apiRoutes.HandleFunc("/company", company.Save).Methods(http.MethodPost, http.MethodOptions)
 	apiRoutes.HandleFunc("/company/{id:[0-9]+}", company.Edit).Methods(http.MethodGet, http.MethodOptions)
 	apiRoutes.HandleFunc("/company/{id:[0-9]+}", company.Update).Methods(http.MethodPut, http.MethodOptions)
+
+	schedule := controllers.ScheduleController{}
+
+	apiRoutes.HandleFunc("/schedule/{queue:[a-zA-z]+}", schedule.Save).Methods(http.MethodPost, http.MethodOptions)
+	apiRoutes.HandleFunc("/schedule/{queue:[a-zA-z]+}/{id:[0-9]+}", schedule.Schedule).Methods(http.MethodPut, http.MethodOptions)
 
 	apiRoutes.Use(middlewares.Cors)
 	apiRoutes.Use(middlewares.JwtAuthentication)

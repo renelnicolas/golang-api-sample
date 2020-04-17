@@ -32,6 +32,11 @@ type JSONResponseList struct {
 	Counter  int64       `json:"counter"`
 }
 
+// JSONResponse :
+type JSONResponse struct {
+	Entity interface{} `json:"entity"`
+}
+
 // JSONResponseError :
 type JSONResponseError struct {
 	Status int    `json:"status"`
@@ -47,6 +52,8 @@ func ErrorResponse(w http.ResponseWriter, status int, message string) {
 
 	mconv, _ := json.Marshal(re)
 
+	log.Printf(">> Error : %s", message)
+
 	w.WriteHeader(status)
 	w.Write(mconv)
 }
@@ -54,13 +61,11 @@ func ErrorResponse(w http.ResponseWriter, status int, message string) {
 // paginationResponse :
 func paginationResponse(repo repositories.Repositoryer, filter models.QueryFilter) (*JSONResponseList, error) {
 	counter, err := repo.Count(filter)
-
 	if nil != err {
 		return nil, err
 	}
 
 	entities, err := repo.FindAll(filter)
-
 	if nil != err {
 		return nil, err
 	}
@@ -68,6 +73,30 @@ func paginationResponse(repo repositories.Repositoryer, filter models.QueryFilte
 	result := JSONResponseList{
 		Counter:  counter,
 		Entities: entities,
+	}
+
+	return &result, nil
+}
+
+// entityResponse :
+func entityResponse(repo repositories.Repositoryer, entity interface{}, filter models.QueryFilter, isNew bool) (*JSONResponse, error) {
+	var (
+		_entity interface{}
+		err     error
+	)
+
+	if isNew {
+		_entity, err = repo.Create(entity, filter)
+	} else {
+		_entity, err = repo.FindOne(entity, filter)
+	}
+
+	if nil != err {
+		return nil, err
+	}
+
+	result := JSONResponse{
+		Entity: _entity,
 	}
 
 	return &result, nil
@@ -105,14 +134,10 @@ func extractFilter(filter *models.QueryFilter, queryValues url.Values, paginatio
 	log.Println("extractFilter", filter)
 }
 
-func extractMuxVars(matchVars map[string]string) (int64, error) {
-	var (
-		entityID int64
-	)
-
+func extractIDFromMuxVars(matchVars map[string]string) (int64, error) {
 	ID, ok := matchVars["id"]
 	if !ok {
-		return 0, errors.New("Email cannot be empty")
+		return 0, errors.New("ID cannot be empty")
 	}
 
 	entityID, err := strconv.ParseInt(ID, 10, 64)

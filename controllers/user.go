@@ -71,8 +71,7 @@ func (h UserController) Profil(w http.ResponseWriter, r *http.Request) {
 func (h UserController) Edit(w http.ResponseWriter, r *http.Request) {
 	matchVars := mux.Vars(r)
 
-	ID, err := extractMuxVars(matchVars)
-
+	ID, err := extractIDFromMuxVars(matchVars)
 	if nil != err {
 		ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -85,9 +84,7 @@ func (h UserController) Edit(w http.ResponseWriter, r *http.Request) {
 
 	entity := models.User{ID: ID}
 
-	repo := repositories.UserRepository{}
-
-	result, err := repo.FindOne(entity, filter)
+	result, err := entityResponse(repositories.UserRepository{}, entity, filter, false)
 	if nil != err {
 		ErrorResponse(w, http.StatusNotFound, "")
 		return

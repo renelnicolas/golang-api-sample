@@ -28,7 +28,7 @@ type User struct {
 	ID                int64                   `json:"id"`
 	Password          NullToEmptyString       `json:"-"`
 	Phone             NullToEmptyString       `json:"phone"`
-	ExternalID        NullToEmptyString       `json:"externalId"`
+	ExternalID        NullToEmptyString       `json:"external_id"`
 	Company           *Company                `json:"company"`
 	Roles             Uint8ArrayToArrayString `json:"roles"`
 	Enabled           bool                    `json:"enabled"`

@@ -45,8 +45,7 @@ func (h CompanyController) List(w http.ResponseWriter, r *http.Request) {
 func (h CompanyController) Edit(w http.ResponseWriter, r *http.Request) {
 	matchVars := mux.Vars(r)
 
-	ID, err := extractMuxVars(matchVars)
-
+	ID, err := extractIDFromMuxVars(matchVars)
 	if nil != err {
 		ErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
@@ -59,9 +58,7 @@ func (h CompanyController) Edit(w http.ResponseWriter, r *http.Request) {
 
 	entity := models.Company{ID: ID}
 
-	repo := repositories.CompanyRepository{}
-
-	result, err := repo.FindOne(entity, filter)
+	result, err := entityResponse(repositories.CompanyRepository{}, entity, filter, false)
 	if nil != err {
 		ErrorResponse(w, http.StatusNotFound, "")
 		return

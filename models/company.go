@@ -5,7 +5,7 @@ type Company struct {
 	ID           int64             `json:"id"`
 	Name         NullToEmptyString `json:"name"`
 	Enabled      bool              `json:"enabled"`
-	ExternalID   NullToEmptyString `json:"externalId"`
+	ExternalID   NullToEmptyString `json:"external_id"`
 	ContactEmail NullToEmptyString `json:"contact_email,omitempty"`
 	Address      NullToEmptyString `json:"address,omitempty"`
 	ZipCode      NullToEmptyString `json:"zip_code,omitempty"`

@@ -19,6 +19,15 @@ type DatabaseConfig struct {
 	Connector string
 }
 
+// AmqConfig :
+type AmqConfig struct {
+	Host      string
+	Port      int
+	User      string
+	Pwd       string
+	Connector string
+}
+
 // DomainConfig :
 type DomainConfig struct {
 	Schema string
@@ -28,6 +37,7 @@ type DomainConfig struct {
 // Config :
 type Config struct {
 	Database  DatabaseConfig
+	Amq       AmqConfig
 	Domain    DomainConfig
 	DebugMode bool
 	Env       string
@@ -43,8 +53,8 @@ func GetConfig() *Config {
 }
 
 // New : New returns a new Config struct
-func New() *Config {
-	if err := godotenv.Load(); nil != err {
+func New(path string) *Config {
+	if err := godotenv.Load(path); nil != err {
 		log.Print("No .env file found")
 	}
 
@@ -56,6 +66,12 @@ func New() *Config {
 			Pwd:    getEnv("DB_PWD", "root"),
 			Schema: getEnv("DB_SCHEMA", "optimiads"),
 		},
+		Amq: AmqConfig{
+			Host: getEnv("AMQ_HOST", "localhost"),
+			Port: getEnvAsInt("AMQ_PORT", 5672),
+			User: getEnv("AMQ_USER", "guest"),
+			Pwd:  getEnv("AMQ_PWD", "guest"),
+		},
 		Domain: DomainConfig{
 			Schema: getEnv("HTTP_SCHEMA", "http"),
 			Host:   getEnv("HTTP_DOMAIN", "ohmytech.local"),
@@ -65,6 +81,7 @@ func New() *Config {
 	}
 
 	toDatabaseConnector(&config.Database)
+	toAmqConnector(&config.Amq)
 
 	return config
 }
@@ -72,6 +89,11 @@ func New() *Config {
 // toDatabaseConnector :
 func toDatabaseConnector(db *DatabaseConfig) {
 	db.Connector = db.User + `:` + db.Pwd + `@tcp(` + db.Host + `:` + strconv.Itoa(db.Port) + `)/` + db.Schema
+}
+
+// toAmqConnector :
+func toAmqConnector(amq *AmqConfig) {
+	amq.Connector = `amqp://` + amq.User + `:` + amq.Pwd + `@` + amq.Host + `:` + strconv.Itoa(amq.Port) + `/`
 }
 
 // getEnv : Simple helper function to read an environment or return a default value

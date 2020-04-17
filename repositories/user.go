@@ -135,7 +135,7 @@ func (r UserRepository) FindOne(entity interface{}, filter models.QueryFilter) (
 		&company.ID, &company.Name, &company.Enabled, &company.ExternalID,
 		&country.ID, &country.Name, &country.Iso)
 	if nil != err {
-		return nil, fmt.Errorf("UserRepository FindOne QueryRow : : %s", err.Error())
+		return nil, fmt.Errorf("UserRepository FindOne QueryRow : %s", err.Error())
 	}
 
 	user.Company = &company

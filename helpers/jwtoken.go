@@ -68,7 +68,6 @@ func ValidateToken(sToken string, secret []byte) (*jwt.Token, error) {
 // ReadToken :
 func ReadToken(sToken string, secret []byte) (jwt.MapClaims, error) {
 	vt, err := ValidateToken(sToken, secret)
-
 	if nil != err {
 		return jwt.MapClaims{}, err
 	}

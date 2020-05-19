@@ -20,13 +20,13 @@ func (h AuthenticationController) SignIn(w http.ResponseWriter, r *http.Request)
 	rb, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if nil != err {
-		ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		ErrorResponse(w, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
 	err = json.Unmarshal(rb, &userConnection)
 	if nil != err {
-		ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		ErrorResponse(w, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
@@ -38,7 +38,7 @@ func (h AuthenticationController) SignIn(w http.ResponseWriter, r *http.Request)
 
 	mconv, err := json.Marshal(userSignIn)
 	if nil != err {
-		ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		ErrorResponse(w, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 

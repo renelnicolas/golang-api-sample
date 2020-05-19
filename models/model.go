@@ -71,3 +71,46 @@ func (n *Uint8ArrayToArrayString) Scan(v interface{}) error {
 	*n = Uint8ArrayToArrayString(value)
 	return nil
 }
+
+// MapStringInterface :
+type MapStringInterface map[string]interface{}
+
+// Value :
+func (n MapStringInterface) Value() (driver.Value, error) {
+	s, err := json.Marshal(n)
+
+	if err != nil {
+		fmt.Printf("MapStringInterface Value : %v\n", err.Error())
+		return "", err
+	}
+
+	if nil == s {
+		return "", nil
+	}
+
+	return string(s), nil
+}
+
+// Scan :
+func (n *MapStringInterface) Scan(v interface{}) error {
+	if v == nil {
+		*n = nil
+		return nil
+	}
+
+	val, ok := v.([]byte)
+	if !ok {
+		return fmt.Errorf("Cannot scan value %v: expected string type, got %T", v, v)
+	}
+
+	var value map[string]interface{}
+
+	if 0 != len(val) {
+		if err := json.Unmarshal(val, &value); nil != err {
+			return fmt.Errorf("Cannot scan value %v: expected string type, got %T", v, v)
+		}
+	}
+
+	*n = MapStringInterface(value)
+	return nil
+}

@@ -36,7 +36,8 @@ type DomainConfig struct {
 
 // Config :
 type Config struct {
-	Database  DatabaseConfig
+	SQL       DatabaseConfig
+	NoSQL     DatabaseConfig
 	Amq       AmqConfig
 	Domain    DomainConfig
 	DebugMode bool
@@ -59,12 +60,19 @@ func New(path string) *Config {
 	}
 
 	config = &Config{
-		Database: DatabaseConfig{
-			Host:   getEnv("DB_HOST", "localhost"),
-			Port:   getEnvAsInt("DB_PORT", 3306),
-			User:   getEnv("DB_USER", "root"),
-			Pwd:    getEnv("DB_PWD", "root"),
-			Schema: getEnv("DB_SCHEMA", "optimiads"),
+		SQL: DatabaseConfig{
+			Host:   getEnv("SQL_HOST", "localhost"),
+			Port:   getEnvAsInt("SQL_PORT", 3306),
+			User:   getEnv("SQL_USER", "root"),
+			Pwd:    getEnv("SQL_PWD", "root"),
+			Schema: getEnv("SQL_SCHEMA", "optimiads"),
+		},
+		NoSQL: DatabaseConfig{
+			Host:   getEnv("NOSQL_HOST", "localhost"),
+			Port:   getEnvAsInt("NOSQL_PORT", 27017),
+			User:   getEnv("NOSQL_USER", "root"),
+			Pwd:    getEnv("NOSQL_PWD", "root"),
+			Schema: getEnv("NOSQL_SCHEMA", "optimiads"),
 		},
 		Amq: AmqConfig{
 			Host: getEnv("AMQ_HOST", "localhost"),
@@ -80,15 +88,21 @@ func New(path string) *Config {
 		Env:       getEnv("ENV", "dev"),
 	}
 
-	toDatabaseConnector(&config.Database)
+	toSQLConnector(&config.SQL)
+	toNoSQLConnector(&config.NoSQL)
 	toAmqConnector(&config.Amq)
 
 	return config
 }
 
-// toDatabaseConnector :
-func toDatabaseConnector(db *DatabaseConfig) {
+// toSQLConnector :
+func toSQLConnector(db *DatabaseConfig) {
 	db.Connector = db.User + `:` + db.Pwd + `@tcp(` + db.Host + `:` + strconv.Itoa(db.Port) + `)/` + db.Schema
+}
+
+// toNoSQLConnector :
+func toNoSQLConnector(db *DatabaseConfig) {
+	db.Connector = `mongodb://` + db.Host + `:` + strconv.Itoa(db.Port)
 }
 
 // toAmqConnector :

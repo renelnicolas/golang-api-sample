@@ -27,7 +27,7 @@ var (
 // CreateCon :
 func createCon() {
 	if nil == con {
-		dbConfig := config.GetConfig().Database
+		dbConfig := config.GetConfig().SQL
 
 		con, err = sql.Open("mysql", dbConfig.Connector)
 

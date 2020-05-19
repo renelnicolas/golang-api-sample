@@ -44,7 +44,7 @@ type JSONResponseError struct {
 }
 
 // ErrorResponse :
-func ErrorResponse(w http.ResponseWriter, status int, message string) {
+func ErrorResponse(w http.ResponseWriter, status int, message string, err error) {
 	re := JSONResponseError{
 		Status: status,
 		Error:  message,
@@ -52,7 +52,7 @@ func ErrorResponse(w http.ResponseWriter, status int, message string) {
 
 	mconv, _ := json.Marshal(re)
 
-	log.Printf(">> Error : %s", message)
+	log.Printf(">> Message|Error : %s >> %s", message, err)
 
 	w.WriteHeader(status)
 	w.Write(mconv)
@@ -79,16 +79,19 @@ func paginationResponse(repo repositories.Repositoryer, filter models.QueryFilte
 }
 
 // entityResponse :
-func entityResponse(repo repositories.Repositoryer, entity interface{}, filter models.QueryFilter, isNew bool) (*JSONResponse, error) {
+func entityResponse(repo repositories.Repositoryer, entity interface{}, filter models.QueryFilter, method string) (*JSONResponse, error) {
 	var (
 		_entity interface{}
 		err     error
 	)
 
-	if isNew {
+	switch method {
+	case "POST":
 		_entity, err = repo.Create(entity, filter)
-	} else {
+	case "GET":
 		_entity, err = repo.FindOne(entity, filter)
+	case "PUT":
+		_entity, err = repo.Update(entity, filter)
 	}
 
 	if nil != err {

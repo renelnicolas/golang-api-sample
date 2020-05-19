@@ -26,13 +26,13 @@ func (h CompanyController) List(w http.ResponseWriter, r *http.Request) {
 
 	result, err := paginationResponse(repositories.CompanyRepository{}, filters)
 	if nil != err {
-		ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		ErrorResponse(w, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
 	mconv, err := json.Marshal(result)
 	if nil != err {
-		ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		ErrorResponse(w, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
@@ -47,7 +47,7 @@ func (h CompanyController) Edit(w http.ResponseWriter, r *http.Request) {
 
 	ID, err := extractIDFromMuxVars(matchVars)
 	if nil != err {
-		ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		ErrorResponse(w, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
@@ -58,15 +58,15 @@ func (h CompanyController) Edit(w http.ResponseWriter, r *http.Request) {
 
 	entity := models.Company{ID: ID}
 
-	result, err := entityResponse(repositories.CompanyRepository{}, entity, filter, false)
+	result, err := entityResponse(repositories.CompanyRepository{}, entity, filter, r.Method)
 	if nil != err {
-		ErrorResponse(w, http.StatusNotFound, "")
+		ErrorResponse(w, http.StatusNotFound, "", err)
 		return
 	}
 
 	mconv, err := json.Marshal(result)
 	if nil != err {
-		ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		ErrorResponse(w, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 

@@ -24,7 +24,7 @@ func JwtAuthentication(next http.Handler) http.Handler {
 
 		err := validators.JwtAuthentication(authorization, &userClaims)
 		if nil != err {
-			controllers.ErrorResponse(w, http.StatusForbidden, err.Error())
+			controllers.ErrorResponse(w, http.StatusForbidden, err.Error(), nil)
 			return
 		}
 

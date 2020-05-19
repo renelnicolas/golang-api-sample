@@ -26,13 +26,13 @@ func (h UserController) List(w http.ResponseWriter, r *http.Request) {
 
 	result, err := paginationResponse(repositories.UserRepository{}, filter)
 	if nil != err {
-		ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		ErrorResponse(w, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
 	mconv, err := json.Marshal(result)
 	if nil != err {
-		ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		ErrorResponse(w, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
@@ -52,13 +52,13 @@ func (h UserController) Profil(w http.ResponseWriter, r *http.Request) {
 
 	err := repo.FindOneByEmail(&entity)
 	if nil != err {
-		ErrorResponse(w, http.StatusNotFound, err.Error())
+		ErrorResponse(w, http.StatusNotFound, err.Error(), nil)
 		return
 	}
 
 	mconv, err := json.Marshal(entity)
 	if nil != err {
-		ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		ErrorResponse(w, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
@@ -73,7 +73,7 @@ func (h UserController) Edit(w http.ResponseWriter, r *http.Request) {
 
 	ID, err := extractIDFromMuxVars(matchVars)
 	if nil != err {
-		ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		ErrorResponse(w, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
@@ -84,15 +84,15 @@ func (h UserController) Edit(w http.ResponseWriter, r *http.Request) {
 
 	entity := models.User{ID: ID}
 
-	result, err := entityResponse(repositories.UserRepository{}, entity, filter, false)
+	result, err := entityResponse(repositories.UserRepository{}, entity, filter, r.Method)
 	if nil != err {
-		ErrorResponse(w, http.StatusNotFound, "")
+		ErrorResponse(w, http.StatusNotFound, "", err)
 		return
 	}
 
 	mconv, err := json.Marshal(result)
 	if nil != err {
-		ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		ErrorResponse(w, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 

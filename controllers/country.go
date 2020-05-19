@@ -25,13 +25,13 @@ func (h CountryController) List(w http.ResponseWriter, r *http.Request) {
 
 	result, err := paginationResponse(repositories.CountryRepository{}, filter)
 	if nil != err {
-		ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		ErrorResponse(w, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 
 	mconv, err := json.Marshal(result)
 	if nil != err {
-		ErrorResponse(w, http.StatusInternalServerError, err.Error())
+		ErrorResponse(w, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 

@@ -26,6 +26,7 @@ func main() {
 
 	go func() {
 		for d := range msgs {
+			// TODO
 			log.Printf("Received a message: %s", d.Body)
 		}
 	}()

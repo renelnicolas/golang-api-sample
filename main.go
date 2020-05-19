@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -63,6 +64,12 @@ func main() {
 	authenticationRoutes.HandleFunc("/cookie/create", cookie.Create).Methods(http.MethodGet, http.MethodOptions)
 	authenticationRoutes.HandleFunc("/cookie/delete", cookie.Delete).Methods(http.MethodGet, http.MethodOptions)
 
+	// vast := controllers.VastController{}
+
+	// authenticationRoutes.HandleFunc("/vast/converter", vast.Converter).Methods(http.MethodGet, http.MethodOptions)
+	// authenticationRoutes.HandleFunc("/vast/analyser", vast.Analyser).Methods(http.MethodGet, http.MethodOptions)
+	// authenticationRoutes.HandleFunc("/vast/parser", vast.Parser).Methods(http.MethodGet, http.MethodOptions)
+
 	authentication := controllers.AuthenticationController{}
 
 	authenticationRoutes.HandleFunc("/signin", authentication.SignIn).Methods(http.MethodPost, http.MethodOptions)
@@ -96,10 +103,28 @@ func main() {
 	apiRoutes.HandleFunc("/company/{id:[0-9]+}", company.Edit).Methods(http.MethodGet, http.MethodOptions)
 	apiRoutes.HandleFunc("/company/{id:[0-9]+}", company.Update).Methods(http.MethodPut, http.MethodOptions)
 
-	schedule := controllers.ScheduleController{}
+	queueType := controllers.QueueTypeController{}
 
-	apiRoutes.HandleFunc("/schedule/{queue:[a-zA-z]+}", schedule.Save).Methods(http.MethodPost, http.MethodOptions)
-	apiRoutes.HandleFunc("/schedule/{queue:[a-zA-z]+}/{id:[0-9]+}", schedule.Schedule).Methods(http.MethodPut, http.MethodOptions)
+	apiRoutes.HandleFunc("/queues_type", queueType.List).Methods(http.MethodGet, http.MethodOptions)
+	apiRoutes.HandleFunc("/queue_type", queueType.Save).Methods(http.MethodPost, http.MethodOptions)
+	apiRoutes.HandleFunc("/queue_type/{id:[0-9]+}", queueType.Edit).Methods(http.MethodGet, http.MethodOptions)
+	apiRoutes.HandleFunc("/queue_type/{id:[0-9]+}", queueType.Update).Methods(http.MethodPut, http.MethodOptions)
+
+	queueScheduler := controllers.QueueSchedulerController{}
+
+	apiRoutes.HandleFunc("/queues_scheduler", queueScheduler.List).Methods(http.MethodGet, http.MethodOptions)
+	apiRoutes.HandleFunc("/queue_scheduler", queueScheduler.Save).Methods(http.MethodPost, http.MethodOptions)
+	apiRoutes.HandleFunc("/queue_scheduler/{id:[0-9]+}", queueScheduler.Edit).Methods(http.MethodGet, http.MethodOptions)
+	apiRoutes.HandleFunc("/queue_scheduler/{id:[0-9]+}", queueScheduler.Update).Methods(http.MethodPut, http.MethodOptions)
+
+	apiRoutes.HandleFunc("/queue_scheduler/schedule/{id:[0-9]+}", queueScheduler.Schedule).Methods(http.MethodPut, http.MethodOptions)
+
+	// list of history for one schedule
+	apiRoutes.HandleFunc("/queue_scheduler/history/{scheduleId}", queueScheduler.History).Methods(http.MethodGet, http.MethodOptions)
+	// get one resume
+	apiRoutes.HandleFunc("/queue_scheduler/resume/{scheduleId}/{workId}", queueScheduler.Resume).Methods(http.MethodGet, http.MethodOptions)
+	// details of resume
+	apiRoutes.HandleFunc("/queue_scheduler/details/{workId}", queueScheduler.Details).Methods(http.MethodGet, http.MethodOptions)
 
 	apiRoutes.Use(middlewares.Cors)
 	apiRoutes.Use(middlewares.JwtAuthentication)
@@ -119,10 +144,7 @@ func main() {
 	// Run our server in a goroutine so that it doesn't block.
 	go func() {
 		if err := srv.ListenAndServe(); nil != err {
-			// lw.ApplicationLogger(lw.ApplicationEventLogger{
-			// 	Package:  "main",
-			// 	Function: "main",
-			// }, "ListenAndServe error : "+err.Error())
+			log.Printf("ListenAndServe error : %v \n", err.Error())
 		}
 	}()
 
@@ -143,10 +165,8 @@ func main() {
 	// Optionally, you could run srv.Shutdown in a goroutine and block on
 	// <-ctx.Done() if your application should wait for other services
 	// to finalize based on context cancellation.
-	// lw.ApplicationLogger(lw.ApplicationEventLogger{
-	// 	Package:  "main",
-	// 	Function: "main",
-	// }, "ListenAndServe shutting down")
+
+	log.Printf("Shutting down cleanly")
 
 	os.Exit(0)
 }

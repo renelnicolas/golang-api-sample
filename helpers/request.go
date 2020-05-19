@@ -1,10 +1,56 @@
 package helpers
 
 import (
+	"io/ioutil"
 	"net"
 	"net/http"
+	"net/url"
 	"strings"
+	"time"
 )
+
+var (
+	requestTimeOut = 5
+)
+
+// ServerSideParameters :
+type ServerSideParameters struct {
+	URL         string     `json:"URL"`
+	URLQuery    url.Values `json:"Queries"`
+	UserAgent   string     `json:"User-Agent"`
+	XForwardFor string     `json:"X-Fowarded-For"`
+	Referer     string     `json:"Referer"`
+}
+
+// ServerSideCall :
+func ServerSideCall(uri string, ssp ServerSideParameters) ([]byte, error) {
+	timeout := time.Duration(time.Duration(requestTimeOut) * time.Second)
+
+	client := http.Client{
+		Timeout: timeout,
+	}
+
+	request, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return []byte(``), err
+	}
+
+	request.Header.Set("User-Agent", ssp.UserAgent)
+	request.Header.Set("X-Forwarded-For", ssp.XForwardFor)
+
+	resp, err := client.Do(request)
+	if err != nil {
+		return []byte(``), err
+	}
+
+	defer resp.Body.Close()
+	contentResponse, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return []byte(``), err
+	}
+
+	return contentResponse, nil
+}
 
 // GetIP defines user ip & proxy services
 func GetIP(remoteAddr string, headers http.Header) string {

@@ -121,7 +121,7 @@ func (r CompanyRepository) FindOne(entity interface{}, filter models.QueryFilter
 	err := getCon().QueryRow(sSQL, nvargs...).Scan(&company.ID, &company.Name, &company.Enabled, &company.Website, &company.ContactEmail, &company.Address, &company.ZipCode, &company.City, &company.Phone, &company.VAT, &company.RCS, &company.ExternalID,
 		&country.ID, &country.Name, &country.Iso)
 	if nil != err {
-		return nil, fmt.Errorf("UserRepository FindOne QueryRow : %s", err.Error())
+		return nil, fmt.Errorf("CompanyRepository FindOne QueryRow : %s", err.Error())
 	}
 
 	company.Country = &country

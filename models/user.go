@@ -95,6 +95,7 @@ func NewUserConnection(remoteAddr string, headers http.Header) UserConnection {
 // ToClaims :
 func (user User) ToClaims() UserClaims {
 	expT := time.Now().Add(24 * time.Hour) // 24h
+	// expT := time.Now().Add(30 * time.Second) // 24h
 
 	usrMain := UserMain{
 		Firstname: user.Firstname,
@@ -160,4 +161,52 @@ func (usert UserToken) ToUser() User {
 	}
 
 	return usr
+}
+
+/*
+ROLES :
+
+ROLE_GUEST -> read only
+ROLE_USER -> no admin
+ROLE_ADMIN -> ROLE_GUEST & ROLE_USER
+ROLE_SUPER_ADMIN -> ROLE_ADMIN & ROLE_GUEST & ROLE_USER
+*/
+
+// IsMaster :
+func (u UserClaims) IsMaster() bool {
+	roles := u.UserToken.Roles
+
+	for _, role := range roles {
+		if "ROLE_SUPER_ADMIN" == role {
+			return true
+		}
+	}
+
+	return false
+}
+
+// IsAdmin :
+func (u UserClaims) IsAdmin() bool {
+	roles := u.UserToken.Roles
+
+	for _, role := range roles {
+		if "ROLE_SUPER_ADMIN" == role || "ROLE_ADMIN" == role {
+			return true
+		}
+	}
+
+	return false
+}
+
+// IsUser :
+func (u UserClaims) IsUser() bool {
+	roles := u.UserToken.Roles
+
+	for _, role := range roles {
+		if "ROLE_SUPER_ADMIN" == role || "ROLE_ADMIN" == role || "ROLE_USER" == role {
+			return true
+		}
+	}
+
+	return false
 }
